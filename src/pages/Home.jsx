@@ -13,23 +13,33 @@ const Home = () => {
   const [searchedProduct, setsearchedProduct] = useState([]);
   const [value, setvalue] = useState("");
   const searchProductHandler = () => {
-    let copyProduct= [...cart];
-    copyProduct = copyProduct.find((product) => {
+    let copyProduct = [...cart];
+    copyProduct = copyProduct.filter((product) => {
       return product.product.includes(value);
     });
-    setsearchedProduct([copyProduct]);
-    console.log(searchedProduct)
+    setsearchedProduct([...copyProduct]);
+    console.log(searchedProduct);
+
   };
 
   return (
     <div className="min-h-screen w-[100vw] overflow-x-hidden!">
       <Nav />
-      <AddProduct />
+      <AddProduct/>
 
       <div className="flex gap-4 justify-center">
         <input
           value={value}
-          onChange={(e) => setvalue(e.target.value)}
+          onChange={(e) => {
+            setvalue(e.target.value.trim(''));
+            let copyProduct = [...cart];
+            copyProduct = copyProduct.filter((product) => {
+              return product.product.includes(value);
+            });
+            setsearchedProduct([...copyProduct]);
+            console.log(searchedProduct);
+
+          }}
           type="tetx"
           placeholder="Search Product"
           className="rounded shadow-xl px-4 py-[8px] outline-none bg-gray-200 "
@@ -41,11 +51,16 @@ const Home = () => {
           search
         </button>
       </div>
-       {
-        searchedProduct.length > 0 ? <div className="product min-h-[60vh] flex flex-col items-center justify-center gap-4">
-          {searchedProduct.map((product) => <Card key={product.id} product={product} />)}
-        </div>  : <ShowProduct />
-       }
+      {value.length > 0 ? (
+        <div className="product min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          {searchedProduct.length > 0 &&
+            searchedProduct.map((product) => (
+              <Card key={product.id} product={product} />
+            ))}
+        </div>
+      ) : (
+        <ShowProduct />
+      )}
     </div>
   );
 };

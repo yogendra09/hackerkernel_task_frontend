@@ -9,13 +9,15 @@ const AddProduct = () => {
   const [price, setprice] = useState("");
   const addProductHandler = (e) => {
     e.preventDefault();
-    if (!product || !price) return alert("enter product name and price");
+    if (!product || !price && typeof(price) === 'number') return alert("enter product name and price");
     const newProduct = {
       id:nanoid(),
       product,
       price,
     };
     dispatch(addProductToCart(newProduct));
+    setproduct("");
+    setprice("");
   };
   return (
     <div className="">
