@@ -1,73 +1,51 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncUserLogout } from "../store/Actions/userAction";
-import { nanoid } from "@reduxjs/toolkit";
-import { addProductToCart } from "../store/Reducers/cartReducer";
+import { addProductToCart, serachProduct } from "../store/Reducers/cartReducer";
 import Card from "../components/Card";
+import AddProduct from "../components/AddProduct";
+import Nav from "../components/Nav";
+import ShowProduct from "../components/ShowProduct";
 const Home = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.userReducer);
-  const [product, setproduct] = useState("");
-  const [price, setprice] = useState("");
   const { cart } = useSelector((state) => state.cartReducer);
-
-  const addProductHandler = (e) => {
-    e.preventDefault();
-    if (!product || !price) return alert("enter product name and price");
-    const newProduct = {
-      id: nanoid(),
-      product,
-      price,
-    };
-    dispatch(addProductToCart(newProduct));
-    console.log(cart.length , cart);
+  const [searchedProduct, setsearchedProduct] = useState([]);
+  const [value, setvalue] = useState("");
+  const searchProductHandler = () => {
+    let copyProduct= [...cart];
+    copyProduct = copyProduct.find((product) => {
+      return product.product.includes(value);
+    });
+    setsearchedProduct([copyProduct]);
+    console.log(searchedProduct)
   };
- 
+
   return (
-    <div className="min-h-screen w-full">
-      <div className="nav h-[10vh] px-10 py-6 flex justify-between">
-        <h1>{user && user.name}</h1>
+    <div className="min-h-screen w-[100vw] overflow-x-hidden!">
+      <Nav />
+      <AddProduct />
+
+      <div className="flex gap-4 justify-center">
+        <input
+          value={value}
+          onChange={(e) => setvalue(e.target.value)}
+          type="tetx"
+          placeholder="Search Product"
+          className="rounded shadow-xl px-4 py-[8px] outline-none bg-gray-200 "
+        />
         <button
-          onClick={() => {
-            dispatch(asyncUserLogout());
-          }}
-          className=""
+          className="cursor-pointer transition-all bg-blue-500 text-white px-6 py-2 rounded-lg border-blue-600 hover:brightness-110"
+          onClick={searchProductHandler}
         >
-          Logout
+          search
         </button>
       </div>
-
-      <div className="py-10">
-        <div className="px-10">
-          <form onSubmit={addProductHandler}>
-            <input
-              value={product}
-              onChange={(e) => setproduct(e.target.value)}
-              className="border-[1px] rounded shadow-xl px-4 py-1"
-              placeholder="Product"
-              type="text"
-            />
-            <input
-              value={price}
-              onChange={(e) => setprice(e.target.value)}
-              className="border-[1px] rounded shadow-xl px-4 py-1"
-              placeholder="Price"
-              type="text"
-            />
-            <button type="submit">add</button>
-          </form>
-        </div>
-      </div>
-
-      <div className="product h-[60vh] flex flex-col items-center justify-center">
-        {cart.length > 0 ? 
-        <>
-        {cart.map((item) => (
-          <Card key={item.id} product={item} />
-        ))}
-        </>
-        : <h1 className="text-4xl">No Product Found</h1>}
-      </div>
+       {
+        searchedProduct.length > 0 ? <div className="product min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          {searchedProduct.map((product) => <Card key={product.id} product={product} />)}
+        </div>  : <ShowProduct />
+       }
     </div>
   );
 };
